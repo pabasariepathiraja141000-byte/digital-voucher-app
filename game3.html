@@ -1,1 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Perfect Girlfriend Puzzle 🧩</title>
+<style>
+body{margin:0;padding:20px;font-family:Arial,sans-serif;background:linear-gradient(#ffdbe8,#fff7fa);display:flex;flex-direction:column;align-items:center;min-height:100vh;box-sizing:border-box}
+#hud{display:flex;justify-content:space-between;width:100%;max-width:360px;font-weight:bold;color:#d6336c;margin-bottom:15px}
+.puzzle-container{width:100%;max-width:360px;background:#fff;padding:20px;border-radius:20px;box-shadow:0 10px 25px rgba(214,51,108,0.15);text-align:center;box-sizing:border-box}
+h2{color:#ff4d6d;margin-top:0;font-size:20px}
+#hint-box{background:#fff5f8;padding:12px;border-radius:12px;margin-bottom:15px;border:1px dashed #ff8fab;font-weight:bold;color:#ff4d6d}
+#slots{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:20px;min-height:60px;padding:10px;background:#fff0f3;border-radius:12px;border:2px dashed #ff758f}
+#pool{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:10px;padding:10px;background:#fff;border-radius:12px}
+.word-card{padding:10px 18px;background:#ff4d6d;color:#fff;border-radius:25px;font-weight:bold;cursor:pointer;user-select:none;box-shadow:0 4px 8px rgba(0,0,0,0.1);transition:transform 0.2s, background 0.2s}
+.word-card:hover{transform:scale(1.05);background:#ff758f}
+.word-card.placed{background:#444}
+#overlay{position:fixed;inset:0;background:rgba(255,255,255,.95);display:flex;flex-direction:column;justify-content:center;align-items:center;gap:15px;z-index:10;text-align:center;padding:20px}
+button{width:100%;max-width:200px;padding:14px;border:none;border-radius:30px;background:#ff4d6d;color:#fff;font-size:16px;cursor:pointer;font-weight:bold}
+a{color:#ff4d6d;text-decoration:none;font-weight:bold;margin-top:5px}
+</style>
+</head>
+<body>
+
+<div id="hud">
+<div>🧩 Puzzle: <span id="current-level">1</span>/3</div>
+<div>✨ Moves: <span id="moves">0</span></div>
+</div>
+
+<div class="puzzle-container">
+    <h2 id="puzzle-title">Unscramble the Truth! 💖</h2>
+    <div id="hint-box">Hint: Loading...</div>
+    
+    <p style="font-size:12px; color:#888; margin:0 0 5px 0;">Tap words below to arrange them in order:</p>
+    <div id="slots"></div>
+    <div id="pool"></div>
+    
+    <button onclick="checkAnswer()" style="margin-top:10px; width:100%;">Submit Answer 👑</button>
+</div>
+
+<div id="overlay">
+<h1>💕 Perfect Girlfriend Puzzle 💕</h1>
+<p>Tap and rearrange the scrambled words to unlock facts about your perfect girlfriend!</p>
+<button onclick="startGame()">Start Puzzle</button>
+<a href="index.html">🏠 Back to Love Lounge</a>
+</div>
+
+<script>
+// The facts and puzzles about you
+const levels = [
+    {
+        hint: "What is she completely obsessed with doing to you?",
+        answer: ["Giving", "you", "unlimited", "cuddles", "and", "sweet", "smooches"],
+        scrambled: ["sweet", "unlimited", "and", "cuddles", "you", "Giving", "smooches"]
+    },
+    {
+        hint: "A certified universal truth about her:",
+        answer: ["Binaramalee", "is", "the", "most", "adorable", "girl", "ever"],
+        scrambled: ["ever", "the", "is", "girl", "adorable", "Binaramalee", "most"]
+    },
+    {
+        hint: "What happens when she handles your moods?",
+        answer: ["She", "always", "knows", "how", "to", "make", "you", "smile"],
+        scrambled: ["make", "knows", "to", "always", "smile", "how", "you", "She"]
+    }
+];
+
+let currentLevel = 0, moves = 0, userSequence = [];
+
+function startGame() {
+    document.getElementById("overlay").style.display = "none";
+    currentLevel = 0;
+    moves = 0;
+    document.getElementById("moves").textContent = moves;
+    loadLevel();
+}
+
+function loadLevel() {
+    userSequence = [];
+    document.getElementById("current-level").textContent = currentLevel + 1;
+    document.getElementById("hint-box").textContent = "Hint: " + levels[currentLevel].hint;
+    
+    const slots = document.getElementById("slots");
+    const pool = document.getElementById("pool");
+    slots.innerHTML = "";
+    pool.innerHTML = "";
+    
+    // Render the pool of click-to-move scrambled word options
+    levels[currentLevel].scrambled.forEach((word) => {
+        const card = document.createElement("div");
+        card.className = "word-card";
+        card.textContent = word;
+        card.onclick = () => handleWordClick(card, word);
+        pool.appendChild(card);
+    });
+}
+
+function handleWordClick(card, word) {
+    moves++;
+    document.getElementById("moves").textContent = moves;
+    
+    if (card.parentElement.id === "pool") {
+        // Move from pool to the sentence line
+        document.getElementById("slots").appendChild(card);
+        userSequence.push(word);
+    } else {
+        // Move from sentence line back to pool
+        document.getElementById("pool").appendChild(card);
+        userSequence = userSequence.filter(w => w !== word);
+    }
+}
+
+function checkAnswer() {
+    const target = levels[currentLevel].answer;
+    
+    // Check if the lengths match and all strings align perfectly
+    let isCorrect = userSequence.length === target.length && 
+                    userSequence.every((val, index) => val === target[index]);
+                    
+    if (isCorrect) {
+        currentLevel++;
+        if (currentLevel < levels.length) {
+            alert("✨ Correct! You unlocked the next truth! 💕");
+            loadLevel();
+        } else {
+            endGame();
+        }
+    } else {
+        alert("❌ Not quite right! Try switching the word order around. 😘");
+    }
+}
+
+function endGame() {
+    document.getElementById("overlay").innerHTML = `
+        <h1>🎉 Puzzle Solved! 🎉</h1>
+        <p>You have successfully decoded all the facts! Proof confirmed: You have the most perfect girlfriend in the world. 🏆</p>
+        <p>Total Moves Taken: <b>${moves}</b></p>
+        <button onclick="startGame()">Play Again</button>
+        <a href="index.html">🏠 Back to Love Lounge</a>
+    `;
+    document.getElementById("overlay").style.display = "flex";
+}
+</script>
+</body>
+</html>
 
