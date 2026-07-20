@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Love Coupon Generator 💕</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ffeef2 0%, #ffd1dc 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            color: #4a4a4a;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #ff4d6d;
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .coupon-card {
+            background: white;
+            border: 3px dashed #ff758f;
+            border-radius: 15px;
+            padding: 30px 20px;
+            box-shadow: 0 10px 20px rgba(255, 117, 143, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .coupon-card::before, .coupon-card::after {
+            content: '';
+            position: absolute;
+            background: #ffd1dc;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .coupon-card::before { left: -10px; }
+        .coupon-card::after { right: -10px; }
+
+        .badge {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #ff758f;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .coupon-text {
+            font-size: 22px;
+            font-weight: bold;
+            color: #ff4d6d;
+            margin: 15px 0;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .serial-number {
+            font-size: 10px;
+            color: #a0a0a0;
+            font-family: monospace;
+            margin-top: 15px;
+        }
+
+        .btn-group {
+            margin-top: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        button {
+            background: #ff4d6d;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(255, 77, 109, 0.2);
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background: #ff758f;
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .btn-redeem {
+            background: #4a4a4a;
+        }
+        .btn-redeem:hover {
+            background: #6a6a6a;
+        }
+
+        .confetti {
+            position: fixed;
+            font-size: 24px;
+            animation: fall 3s linear forwards;
+            pointer-events: none;
+            z-index: 999;
+            top: -50px;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(105vh) rotate(360deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>💕 Your Love Coupon Book 💕</h1>
+        
+        <div class="coupon-card">
+            <div class="badge">Official Voucher</div>
+            <div class="coupon-text" id="couponDisplay">Click below to draw a coupon! ✨</div>
+            <div class="serial-number" id="serialDisplay">SERIAL: #LOV-000000</div>
+        </div>
+
+        <div class="btn-group">
+            <button onclick="generateCoupon()">🎲 Draw New Coupon</button>
+            <button class="btn-redeem" onclick="redeemCoupon()">✅ Redeem This Coupon</button>
+        </div>
+    </div>
+
+    <script>
+        const coupons = [
+            "💋 One Sweet Kiss on the Cheek",
+            "🤗 A 30-Second Warm Bear Hug",
+            "💋 One Passionate 10-Second Kiss",
+            "🤗 An Uninterrupted Couch Cuddle Session",
+            "💋 Five Quick Attacks of Tiny Kisses",
+            "🤗 One Back Scratch & Hug Combo",
+            "💋 A Kiss on the Forehead",
+            "🤗 Spoiled with Hugs for the Next Hour"
+        ];
+
+        function generateCoupon() {
+            const randomIndex = Math.floor(Math.random() * coupons.length);
+            document.getElementById('couponDisplay').innerText = coupons[randomIndex];
+            
+            const randomSerial = Math.floor(100000 + Math.random() * 900000);
+            document.getElementById('serialDisplay').innerText = `SERIAL: #LOV-${randomSerial}`;
+        }
+
+        function redeemCoupon() {
+            const currentText = document.getElementById('couponDisplay').innerText;
+            if (currentText.includes("Click below")) {
+                alert("Draw a coupon first! 😘");
+                return;
+            }
+            
+            alert(`🎟️ Coupon Saved! Cash this in with me right now!`);
+            
+            for (let i = 0; i < 30; i++) {
+                createConfetti();
+            }
+        }
+
+        function createConfetti() {
+            const emojis = ['❤️', '💖', '💋', '🤗', '✨'];
+            const confetti = document.createElement('div');
+            confetti.classList.add('confetti');
+            confetti.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+            confetti.style.left = Math.random() * 100 + 'vw';
+            confetti.style.animationDuration = (Math.random() * 2 + 1) + 's';
+            document.body.appendChild(confetti);
+
+            setTimeout(() => {
+                confetti.remove();
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
