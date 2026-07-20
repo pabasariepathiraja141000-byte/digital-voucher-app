@@ -1,1 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Catch Hearts ❤️</title>
+<style>
+body{margin:0;overflow:hidden;font-family:Arial,sans-serif;background:linear-gradient(#ffdbe8,#fff7fa)}
+#hud{position:fixed;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;font-weight:bold;color:#d6336c}
+#game{position:relative;width:100vw;height:100vh}
+#basket{position:absolute;bottom:20px;width:90px;height:35px;background:#8b5a2b;border-radius:0 0 25px 25px;left:50%;transform:translateX(-50%)}
+.heart{position:absolute;font-size:32px;user-select:none}
+#overlay{position:absolute;inset:0;background:rgba(255,255,255,.92);display:flex;flex-direction:column;justify-content:center;align-items:center;gap:15px}
+button{padding:12px 22px;border:none;border-radius:30px;background:#ff4d6d;color:#fff;font-size:16px;cursor:pointer}
+a{color:#ff4d6d;text-decoration:none;font-weight:bold}
+</style>
+</head>
+<body>
+<div id="game">
+<div id="hud">
+<div>❤️ Score: <span id="score">0</span></div>
+<div>💔 Lives: <span id="lives">5</span></div>
+<div>⏱️ Time: <span id="time">30</span></div>
+</div>
+<div id="basket"></div>
+<div id="overlay">
+<h1>❤️ Catch Hearts ❤️</h1>
+<p>Move the basket with your mouse or finger.</p>
+<button onclick="startGame()">Start Game</button>
+<a href="index.html">🏠 Back to Love Lounge</a>
+</div>
+</div>
+<script>
+const game=document.getElementById("game"),basket=document.getElementById("basket");
+let score=0,lives=5,time=30,running=false,spawn,clock,anim;
 
+function moveBasket(x){
+ const w=game.clientWidth;
+ let pos=Math.max(45,Math.min(w-45,x));
+ basket.style.left=pos+"px";
+}
+game.addEventListener("mousemove",e=>running&&moveBasket(e.clientX));
+game.addEventListener("touchmove",e=>{if(running){moveBasket(e.touches[0].clientX);e.preventDefault();}},{passive:false});
+
+function startGame(){
+ document.getElementById("overlay").style.display="none";
+ document.querySelectorAll(".heart").forEach(h=>h.remove());
+ score=0;lives=5;time=30;
+ updateHUD();
+ running=true;
+ spawn=setInterval(createHeart,700);
+ clock=setInterval(()=>{
+   time--;updateHUD();
+   if(time<=0) endGame();
+ },1000);
+ anim=requestAnimationFrame(loop);
+}
+
+function createHeart(){
+ const h=document.createElement("div");
+ h.className="heart";
+ h.textContent=Math.random()<0.12?"💛":"❤️";
+ h.dataset.speed=2+Math.random()*3;
+ h.style.left=Math.random()*(game.clientWidth-40)+"px";
+ h.style.top="-40px";
+ game.appendChild(h);
+}
+
+function loop(){
+ document.querySelectorAll(".heart").forEach(h=>{
+   let y=parseFloat(h.style.top);
+   y+=parseFloat(h.dataset.speed);
+   h.style.top=y+"px";
+   const hr=h.getBoundingClientRect();
+   const br=basket.getBoundingClientRect();
+   if(!(hr.right<br.left||hr.left>br.right||hr.bottom<br.top||hr.top>br.bottom)){
+      score+=h.textContent==="💛"?5:1;
+      h.remove();updateHUD();
+   }else if(y>window.innerHeight){
+      lives--;h.remove();updateHUD();
+      if(lives<=0) endGame();
+   }
+ });
+ if(running) anim=requestAnimationFrame(loop);
+}
+
+function updateHUD(){
+ scoreEl.textContent=score;
+ livesEl.textContent=lives;
+ timeEl.textContent=time;
+}
+const scoreEl=document.getElementById("score");
+const livesEl=document.getElementById("lives");
+const timeEl=document.getElementById("time");
+
+function endGame(){
+ running=false;
+ clearInterval(spawn);clearInterval(clock);cancelAnimationFrame(anim);
+ let high=Math.max(score,+(localStorage.catchHighScore||0));
+ localStorage.catchHighScore=high;
+ document.getElementById("overlay").innerHTML=
+ `<h1>${score>=30?"🎉 Amazing!":"💕 Game Over"}</h1>
+ <p>Your Score: <b>${score}</b></p>
+ <p>🏆 High Score: <b>${high}</b></p>
+ <button onclick="location.reload()">Play Again</button>
+ <a href="index.html">🏠 Back to Love Lounge</a>`;
+ document.getElementById("overlay").style.display="flex";
+}
+</script>
+</body>
+</html>
